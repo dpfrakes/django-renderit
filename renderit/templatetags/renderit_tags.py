@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from collections import deque
+
 from django.db.models import Model
 from django.template import Library, Node, TemplateSyntaxError, Variable
 from django.template import Context
@@ -45,9 +47,15 @@ def generate_template_list(type_string, args=None, prefix=None, group=None,
     arg_list = list(args)
     # Insert to the object type string to the arg list
     arg_list.insert(0, type_string)
+    # Wrap in deque to easily allow resetting order
+    arg_list = deque(arg_list)
+
     # Build the default arg list without group or prefix
-    argstr_list = [concat.join(arg_list[0:x]) for x in \
-                    range(len(arg_list), 0, -1)]
+    argstr_list = []
+    for start_arg in range(len(arg_list)):
+        for x in range(len(arg_list), 0, -1):
+            argstr_list.append(concat.join(list(arg_list)[0:x]))
+        arg_list.rotate(-1)
 
     # Using the arg_str_list apply the prefix (if one is supplied)
     prefix_list = ['%s%s%s' % (prefix, concat, x) for x in \
