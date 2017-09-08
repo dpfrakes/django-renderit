@@ -45,8 +45,6 @@ def generate_template_list(type_string, args=None, prefix=None, group=None,
     template_list = []
 
     arg_list = list(args)
-    # Insert to the object type string to the arg list
-    arg_list.insert(0, type_string)
     # Wrap in deque to easily allow resetting order
     arg_list = deque(arg_list)
 
@@ -54,7 +52,8 @@ def generate_template_list(type_string, args=None, prefix=None, group=None,
     argstr_list = []
     for start_arg in range(len(arg_list)):
         for x in range(len(arg_list), 0, -1):
-            argstr_list.append(concat.join(list(arg_list)[0:x]))
+            argstr_list.append(concat.join([type_string, \
+                concat.join(list(arg_list)[0:x])]))
         arg_list.rotate(-1)
 
     # Using the arg_str_list apply the prefix (if one is supplied)
@@ -69,6 +68,9 @@ def generate_template_list(type_string, args=None, prefix=None, group=None,
     # Add the prefixed_list and arg_str_list (without group)
     template_list.extend(prefix_list)
     template_list.extend(argstr_list)
+
+    # Add the type_string-only template
+    template_list.append(type_string)
 
     # Add the default template
     template_list.append(default_tmpl)
